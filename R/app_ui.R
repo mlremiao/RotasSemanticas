@@ -1,9 +1,3 @@
-#' The application User-Interface
-#'
-#' @param request Internal parameter for `{shiny}`.
-#'     DO NOT REMOVE.
-#' @import shiny
-#' @noRd
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -11,22 +5,183 @@ library(dplyr)
 library(leaflet)
 library(mapview)
 
-app_ui <- dashboardPage(
+################################################################################
+
+tabela <- readRDS("./R/tabela.rds")
+
+microrregioes_ini <- readRDS("./R/microrregioes_ini.rds")
+
+microrregioes_fim <- readRDS("./R/microrregioes_fim.rds")
+
+################################################################################
 
 
-      dashboardHeader(
+ui <- dashboardPage(
+
+  title = HTML("Rotas Semânticas"),
+
+  dashboardHeader(
+
+    title = HTML('<center><img src="Logotipo_PRF2.png", height = "28"></center>'),
+
+    titleWidth = 200
+
+  ),
+  dashboardSidebar(
+
+    sidebarMenu(
+
+      ################################################################################
+
+      menuItem("Home", tabName = "tab_home", icon = icon("home")),
+
+      ################################################################################
 
 
-        title = span("Rotas Semânicas"),
+      menuItem("Tipo de Apreesão", icon = icon("filter"), startExpanded = F,
 
-        titleWidth = 300
+               fluidPage(
 
+                 pickerInput(
+                   inputId = "uf",
+                   label = "Unidades da Federação",
+                   choices = "",
+                   options = list(
+                     `actions-box` = TRUE),
+                   choicesOpt = list(
+                     style = rep(("color: black; background: lightgrey; font-weight: bold;"),28)
+                   ),
+                   multiple = FALSE,
+                   selected = ""
+                 ),
+
+                 pickerInput(
+                   inputId = "apreensao",
+                   label = "Tipo de Apreensão",
+                   choices = "",
+                   options = list(
+                     `actions-box` = TRUE),
+                   choicesOpt = list(
+                     style = rep(("color: black; background: lightgrey; font-weight: bold;"),10)
+                   ),
+                   multiple = FALSE,
+                   selected = ""
+                 ),
+
+                 menuItem("", tabName = "tab_rotas", icon = icon("arrow-right")),
+
+
+               )
       ),
-      dashboardSidebar(sidebarMenuOutput("menu")
 
+      ################################################################################
 
+      menuItem("Origem", icon = icon("filter"), startExpanded = F,
+
+               fluidPage(
+
+                 pickerInput(
+                   inputId = "uf1",
+                   label = "Unidades da Federação",
+                   choices = "",
+                   options = list(
+                     `actions-box` = TRUE),
+                   choicesOpt = list(
+                     style = rep(("color: black; background: lightgrey; font-weight: bold;"),28)
+                   ),
+                   multiple = FALSE,
+                   selected = ""
+                 ),
+
+                 pickerInput(
+                   inputId = "microrregiao1",
+                   label = "Microrregião de Origem",
+                   choices = "",
+                   options = list(
+                     `actions-box` = TRUE),
+                   choicesOpt = list(
+                     style = rep(("color: black; background: lightgrey; font-weight: bold;"),398)
+                   ),
+                   multiple = FALSE,
+                   selected = ""
+
+                 ),
+
+                 menuItem("", tabName = "tab_origem", icon = icon("arrow-right")),
+
+               )
       ),
-      dashboardBody(
+
+
+      ################################################################################
+
+      menuItem("Destino", icon = icon("filter"), startExpanded = F,
+
+               fluidPage(
+
+                 pickerInput(
+                   inputId = "uf2",
+                   label = "Unidades da Federação",
+                   choices = "",
+                   options = list(
+                     `actions-box` = TRUE),
+                   choicesOpt = list(
+                     style = rep(("color: black; background: lightgrey; font-weight: bold;"),28)
+                   ),
+                   multiple = FALSE,
+                   selected = ""
+                 ),
+
+                 pickerInput(
+                   inputId = "microrregiao2",
+                   label = "Microrregião de Destino",
+                   choices = "",
+                   options = list(
+                     `actions-box` = TRUE),
+                   choicesOpt = list(
+                     style = rep(("color: black; background: lightgrey; font-weight: bold;"),398)
+                   ),
+                   multiple = FALSE,
+                   selected = ""
+
+                 ),
+
+                 menuItem("", tabName = "tab_destino", icon = icon("arrow-right")),
+
+               )
+      )
+
+
+
+      ################################################################################
+    )
+  ),
+
+
+  ################################################################################
+
+  dashboardBody(
+    tabItems(
+
+      ################################################################################
+
+      tabItem(
+
+        "tab_home",
+
+        ################################################################################
+
+        fluidPage(
+
+          HTML('<center><img src="Prf_brasao_novo.jpg" width="500"></center>'),
+
+          imageOutput("imagem"),
+
+        ),
+
+
+        ################################################################################
+
 
         tags$head(tags$style(HTML('
                                 /* logo */
@@ -40,7 +195,7 @@ app_ui <- dashboardPage(
                                 }
 
                                 /* navbar (rest of the header) */
-                                .skin-blue .main-header .navbar {
+                               .skin-blue .main-header .navbar {
                                 background-color: #120a8f;
                                 }
 
@@ -74,10 +229,23 @@ app_ui <- dashboardPage(
                                 background-color:  #FFFFFF;
                                 }
 
-                                '))),
+      ')
+        )
+        )
+        ################################################################################
+      ),
+
+
+      ################################################################################
+
+      tabItem(
+
+        "tab_rotas",
+
+        ################################################################################
 
         tabsetPanel(
-          id = "tabs",
+          id = "tabs1",
 
           tabPanel(
             title = "Rotas",
@@ -106,30 +274,60 @@ app_ui <- dashboardPage(
             )
           )
         )
+        ################################################################################
+      ),
+
+      ################################################################################
+
+      tabItem(
+        "tab_origem",
+
+        ################################################################################
+
+        tabsetPanel(
+          id = "tabs2",
+
+          tabPanel(
+            title = "Rotas por Origem",
+            fluidRow(
+              column(12,
+                     mapviewOutput("mapa1", height = "1000px")
+
+              )
+            )
+          )
+        )
+        ################################################################################
+      ),
+
+      ################################################################################
+
+      tabItem(
+        "tab_destino",
+
+        ################################################################################
+
+        tabsetPanel(
+          id = "tabs",
+
+          tabPanel(
+            title = "Rotas por Destino",
+
+            fluidRow(
+              column(12,
+                     mapviewOutput("mapa2", height = "1000px")
+
+              )
+            )
+          )
+        )
       )
-    )
 
-#' Add external Resources to the Application
-#'
-#' This function is internally used to add external
-#' resources inside the Shiny application.
-#'
-#' @import shiny
-#' @importFrom golem add_resource_path activate_js favicon bundle_resources
-#' @noRd
-golem_add_external_resources <- function() {
-  add_resource_path(
-    "www",
-    app_sys("app/www")
-  )
+      ################################################################################
 
-  tags$head(
-    favicon(),
-    bundle_resources(
-      path = app_sys("app/www"),
-      app_title = "RotasSemanticas"
     )
-    # Add here other external resources
-    # for example, you can add shinyalert::useShinyalert()
   )
-}
+)
+
+
+################################################################################
