@@ -45,7 +45,7 @@ usethis::use_test("app")
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("RotasSemanticas")
+usethis::use_vignette("Rotas")
 devtools::build_vignettes()
 
 ## Code Coverage----
